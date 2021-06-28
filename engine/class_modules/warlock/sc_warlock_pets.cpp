@@ -1071,6 +1071,7 @@ struct bile_spit_t : public warlock_pet_spell_t
   {
     tick_may_crit = false;
     hasted_ticks  = false;
+    cooldown->duration = timespan_t::from_seconds( 60 );
   }
 };
 
@@ -1085,7 +1086,9 @@ struct headbutt_t : public warlock_pet_melee_attack_t
 vilefiend_t::vilefiend_t( warlock_t* owner )
   : warlock_simple_pet_t( owner, "vilefiend", PET_VILEFIEND ), bile_spit( nullptr )
 {
-  action_list_str += "travel/headbutt";
+  action_list_str = "bile_spit";
+  action_list_str += "/travel";
+  action_list_str += "/headbutt";
   owner_coeff.ap_from_sp = 0.23;
   owner_coeff.health     = 0.75;
 }
@@ -1098,8 +1101,18 @@ void vilefiend_t::init_base_stats()
   bile_spit    = new bile_spit_t( this );
 }
 
+void vilefiend_t::arise()
+{
+  warlock_pet_t::arise();
+
+  bile_spit->reset();
+}
+
 action_t* vilefiend_t::create_action( util::string_view name, const std::string& options_str )
 {
+  if ( name == "bile_spit" )
+    return bile_spit;
+
   if ( name == "headbutt" )
   {
     special_ability = new headbutt_t( this );

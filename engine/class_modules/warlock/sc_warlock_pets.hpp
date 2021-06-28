@@ -113,6 +113,7 @@ struct warlock_pet_t : public pet_t
     }
     timespan_t execute_time() const override
     {
+        //TODO travel faster?
       return timespan_t::from_seconds( player->current.distance / 33.0 );
     }
     bool ready() override
@@ -290,7 +291,8 @@ struct warlock_pet_melee_t : public warlock_pet_action_t<melee_attack_t>
     {
       first = false;
     }
-    if ( !player->executing && !player->channeling )
+    //TODO melee distance?
+    if ( !player->executing && !player->channeling && player->current.distance < 5 )
     {
       melee_attack_t::execute();
       if ( oh )
@@ -449,6 +451,7 @@ struct vilefiend_t : public warlock_simple_pet_t
 
   vilefiend_t( warlock_t* owner );
   void init_base_stats() override;
+  void arise() override;
   action_t* create_action( util::string_view name, const std::string& options_str ) override;
 };
 
